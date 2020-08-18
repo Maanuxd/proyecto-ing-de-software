@@ -29,6 +29,7 @@ app.get('/', (req, res) => {
     res.send('Pantalla de inicio');
 });
 
+// Listar productos
 app.get('/productos', (req, res) => {
     const sql = 'SELECT * FROM producto';
     
@@ -47,6 +48,7 @@ app.get('/contacto', (req, res) => {
 });
 
 // Productos
+// Producto por id
 app.get('/productos/:id', (req, res) => {
     const {id} = req.params
     const sql = `SELECT * FROM producto WHERE id = ${id}`;
@@ -60,6 +62,7 @@ app.get('/productos/:id', (req, res) => {
     });
 });
 
+// Agregar productos
 app.post('/productos/agregar', (req, res) => {
     const sql = 'INSERT INTO producto SET ?';
     const productObj = {
@@ -72,54 +75,139 @@ app.post('/productos/agregar', (req, res) => {
         image: req.body.image
     }
     
-    connection.query(sql, productObj, (error,result)=>{
+    connection.query(sql, productObj, error=>{
         if(error) throw error;
         res.send('Producto creado!');
     });
    
 });
 
-
+// Modificar productos
 app.put('/productos/modificar/:id', (req,res) => {
     const {id} = req.params;
     const {nombre,precio,descripcion,disponibilidad,id_categoria,stock,image} = req.body;
     const sql = `UPDATE producto SET nombre = '${nombre}', descripcion = '${descripcion}',
     disponibilidad = '${disponibilidad}',precio = '${precio}',id_categoria = '${id_categoria}',stock = '${stock}',image = '${image}' WHERE id = ${id}`;
 
-    connection.query(sql, (error)=>{
+    connection.query(sql, error =>{
         if(error) throw error;
         res.send('Producto modificado!');
     });
 });
 
+// Eliminar productos
 app.delete('/productos/eliminar/:id', (req,res) => {
-    res.send("Eliminar producto por id");
+    const {id} = req.params;
+    const sql = `DELETE FROM producto WHERE id = ${id}`;
+    connection.query(sql, error => {
+        if(error) throw error;
+        res.send('Producto eliminado');
+    });     
 });
 
 // Categorias
 
-app.get('/categorias/agregar', (req, res) => {
-    res.send('Añadir categoria');
+// Listar categoria
+app.get('/categorias', (req, res) => {
+    const sql = 'SELECT * FROM categoria';
+    
+    connection.query(sql, (error, results)=>{
+        if(error) throw error;
+        if(results.length > 0){
+            res.json(results);
+        }else{
+            res.send('No se han encontrado resultados');
+        }
+    });
 });
 
+// Añadir categoria
+app.post('/categorias/agregar', (req, res) => {
+    const sql = 'INSERT INTO categoria SET ?';
+    const productObj = {
+        nombre: req.body.nombre,
+        descripcion: req.body.descripcion
+    }
+    connection.query(sql, productObj, error=>{
+        if(error) throw error;
+        res.send('Categoría creada!');
+    });
+   
+});
+
+// Modificar categoria
 app.put('/categorias/modificar/:id', (req,res) => {
-    res.send('Modificar categoria');
+    const {id} = req.params;
+    const {nombre,descripcion} = req.body;
+    const sql = `UPDATE categoria SET nombre = '${nombre}', descripcion = '${descripcion}' WHERE id = ${id}`;
+
+    connection.query(sql, error =>{
+        if(error) throw error;
+        res.send('Categoría modificada!');
+    });
 });
 
+// Eliminar categoria
 app.delete('/categorias/eliminar/:id', (req,res) => {
-    res.send("Eliminar categoria por id");
+    const {id} = req.params;
+    const sql = `DELETE FROM categoria WHERE id = ${id}`;
+    connection.query(sql, error => {
+        if(error) throw error;
+        res.send('Categoría eliminada');
+    });     
 });
+
 
 // Clientes
 
-app.get('/categorias/agregar', (req, res) => {
-    res.send('Añadir categoria');
+// Listar clientes
+app.get('/clientes', (req, res) => {
+    const sql = 'SELECT * FROM cliente';
+    
+    connection.query(sql, (error, results)=>{
+        if(error) throw error;
+        if(results.length > 0){
+            res.json(results);
+        }else{
+            res.send('No se han encontrado resultados');
+        }
+    });
 });
 
-app.put('/categorias/modificar/:id', (req,res) => {
-    res.send('Modificar categoria');
+// Añadir clientes
+app.post('/clientes/agregar', (req, res) => {
+    const sql = 'INSERT INTO cliente SET ?';
+    const productObj = {
+        nombre: req.body.nombre,
+        direccion: req.body.direccion,
+        email: req.body.email,
+        telefono: req.body.telefono
+    }
+    connection.query(sql, productObj, error=>{
+        if(error) throw error;
+        res.send('Cliente creado!');
+    });
 });
 
-app.delete('/categorias/eliminar/:id', (req,res) => {
-    res.send("Eliminar categoria por id");
+// Modificar clientes
+app.put('/clientes/modificar/:id', (req,res) => {
+    const {id} = req.params;
+    const {nombre,direccion,email,telefono} = req.body;
+    const sql = `UPDATE cliente SET nombre = '${nombre}', direccion = '${direccion}', email = '${email}', telefono = '${telefono}' WHERE id = ${id}`;
+
+    connection.query(sql, error =>{
+        if(error) throw error;
+        res.send('Cliente modificado!');
+    });
 });
+
+// Eliminar clientes
+app.delete('/clientes/eliminar/:id', (req,res) => {
+    const {id} = req.params;
+    const sql = `DELETE FROM cliente WHERE id = ${id}`;
+    connection.query(sql, error => {
+        if(error) throw error;
+        res.send('Cliente eliminado');
+    });     
+});
+
