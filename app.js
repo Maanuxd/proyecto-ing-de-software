@@ -1,13 +1,26 @@
 const express = require('express');
 const mysql = require('mysql');
 const bodyParser = require('body-parser');
+const path = require('path');
+const multer = require('multer');
+const storage = multer.diskStorage({
+    destination: function(req, file, cb){
+        cb(null, './uploads');
+    },
+    filename: function(req,file,cb){
+        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+    }
+});
+const upload = multer({storage: storage});
+
 
 const PORT = process.env.PORT || 3050;
-
 const app = express();
 
 // parse application/x-www-form-urlencoded
-app.use(bodyParser.json());
+app.use(express.json())
+   .use(express.urlencoded({extended: true}))
+app.use(express.static('uploads'));
 
 var connection = mysql.createConnection({
   host     : 'localhost',
@@ -61,9 +74,14 @@ app.get('/productos/:id', (req, res) => {
         }
     });
 });
+// Agregar prueba
+app.post('/subir', upload.single('file'), (req,res) => {
+    return res.send(req.file);
+});
+
 
 // Agregar productos
-app.post('/productos/agregar', (req, res) => {
+app.post('/productos/agregar', upload.single('imagenProducto'), (req, res) => {
     const sql = 'INSERT INTO producto SET ?';
     const productObj = {
         nombre: req.body.nombre,
@@ -72,14 +90,14 @@ app.post('/productos/agregar', (req, res) => {
         disponibilidad: req.body.disponibilidad,
         id_categoria: req.body.id_categoria,
         stock: req.body.stock,
-        image: req.body.image
+        image: req.file.filename
     }
-    
+    //console.log("hola: ", req.file.filename);
     connection.query(sql, productObj, error=>{
         if(error) throw error;
         res.send('Producto creado!');
     });
-   
+    
 });
 
 // Modificar productos
